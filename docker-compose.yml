@@ -1,47 +1,63 @@
-version: '3.8'
-
 services:
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9091:9091"
+    networks:
+      - monitoring
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Contraseña de administrador de Grafana
+    volumes:
+      - ./grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
     ports:
       - "3000:3000"
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana-data:/var/lib/grafana
     depends_on:
+      - prometheus
       - loki
-
+    networks:
+      - monitoring
   loki:
     image: grafana/loki:latest
     container_name: loki
+    volumes:
+      - ./loki/loki-config.yaml:/etc/loki/loki-config.yaml
+      - loki_data:/loki
     ports:
       - "3100:3100"
-    volumes:
-      - ./loki-config.yml:/etc/loki/local-config.yaml
-    command: -config.file=/etc/loki/local-config.yaml
-
+    networks:
+      - monitoring
   promtail:
     image: grafana/promtail:latest
     container_name: promtail
     volumes:
-      - /var/log:/var/log
-      - ./promtail-config.yml:/etc/promtail/config.yml
-    command: -config.file=/etc/promtail/config.yml
+      - ./promtail/promtail-config.yaml:/etc/promtail/promtail-config.yaml
+      - /var/log:/var/log 
     depends_on:
       - loki
+    networks:
+      - monitoring
 
-  prometheus:
-    image: prom/prometheus:latest
-    container_name: prometheus
-    ports:
-      - "9090:9090"
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: alertmanager
     volumes:
-      - ./prometheus-config.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    ports:
+      - "9093:9093"
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
 
 volumes:
-  grafana-data:
+  prometheus_data:
+  loki_data:
