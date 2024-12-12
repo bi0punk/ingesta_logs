@@ -1,0 +1,131 @@
+alertmanager.yml
+
+
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname']
+  receiver: 'null'
+
+receivers:
+  - name: 'null'
+
+  # Se puede agregar un canal de notificaciones, por ejemplo, correo
+  - name: 'email'
+    email_configs:
+      - to: 'youremail@example.com'
+        from: 'alertmanager@example.com'
+        smarthost: 'smtp.example.com:587'
+        auth_username: 'your_username'
+        auth_password: 'your_password'
+
+
+dahboard.yml
+
+apiVersion: 1
+
+providers:
+  - name: 'default'
+    orgId: 1
+    folder: ''
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards
+
+
+
+
+datasource yml
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    url: 'http://prometheus:9091'
+    isDefault: true
+  - name: Loki
+    type: loki
+    access: proxy
+    url: 'http://loki:3100'
+
+
+
+
+loki-config.yml
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+ingester:
+  wal:
+    enabled: true
+    dir: /loki/wal
+
+  chunk_target_size: 1048576
+  max_chunk_age: 1h
+
+  # Si no se especifica un directorio de almacenamiento, Loki usará memoria.
+  storage_config:
+    boltdb_shipper:
+      active_index_directory: /loki/index
+      cache_location: /loki/cache
+    filesystem:
+      directory: /loki/chunks
+
+
+
+prometheus.yml
+
+
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'loki'
+    static_configs:
+      - targets: ['loki:3100']
+
+  - job_name: 'promtail'
+    static_configs:
+      - targets: ['promtail:9080']
+
+
+
+promtail-config.yml
+
+server:
+  http_listen_port: 9080
+
+positions:
+  filename: /tmp/positions.yaml
+
+clients:
+  - url: http://loki:3100/loki/api/v1/push
+
+scrape_configs:
+  - job_name: system
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: varlogs
+          __path__: /var/log/*log
+
+
+
+
+
+
+
+
+
+
+
