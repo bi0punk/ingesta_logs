@@ -9,7 +9,7 @@ mkdir -p monitor/promtail
 mkdir -p monitor/alertmanager
 
 # Crear archivos vacíos
-touch monitor/docker-compose.yml
+touch monitor/docker-compose.yml > fsdfsfsf
 
 touch monitor/grafana/provisioning/dashboards/dashboard.yml
 touch monitor/grafana/provisioning/datasources/datasource.yml
