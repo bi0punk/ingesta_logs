@@ -71,8 +71,3 @@ networks:
 volumes:
   prometheus_data:
   loki_data:
-
-
-volumes:
-  prometheus_data:
-  loki_data:

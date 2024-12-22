@@ -1,0 +1,21 @@
+alertmanager.yml
+
+
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname']
+  receiver: 'null'
+
+receivers:
+  - name: 'null'
+
+  # Se puede agregar un canal de notificaciones, por ejemplo, correo
+  - name: 'email'
+    email_configs:
+      - to: 'youremail@example.com'
+        from: 'alertmanager@example.com'
+        smarthost: 'smtp.example.com:587'
+        auth_username: 'your_username'
+        auth_password: 'your_password'

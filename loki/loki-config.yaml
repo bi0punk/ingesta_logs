@@ -1,0 +1,20 @@
+
+server:
+  http_listen_port: 3100
+  grpc_listen_port: 9096
+
+ingester:
+  wal:
+    enabled: true
+    dir: /loki/wal
+
+  chunk_target_size: 1048576
+  max_chunk_age: 1h
+
+  # Si no se especifica un directorio de almacenamiento, Loki usará memoria.
+  storage_config:
+    boltdb_shipper:
+      active_index_directory: /loki/index
+      cache_location: /loki/cache
+    filesystem:
+      directory: /loki/chunks
