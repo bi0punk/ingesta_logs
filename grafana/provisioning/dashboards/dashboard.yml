@@ -1,5 +1,3 @@
-dahboard.yml
-
 apiVersion: 1
 
 providers:
@@ -9,5 +7,3 @@ providers:
     type: file
     options:
       path: /etc/grafana/provisioning/dashboards
-
-
