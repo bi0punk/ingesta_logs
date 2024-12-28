@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   # Servicio de Prometheus
   prometheus:
@@ -92,6 +90,8 @@ services:
     networks:
       - monitoring
     restart: always
+    volumes:
+      - /sys:/sys:ro  # Monta /sys del host en el contenedor (necesario para acceder a métricas del sistema)
 
 
 
